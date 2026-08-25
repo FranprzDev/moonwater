@@ -24,8 +24,8 @@ function Earth() {
 
 function Regolith() {
   const [map, bump] = useTexture(['/textures/moonground.jpg', '/textures/moonground.jpg'])
-  map.wrapS = map.wrapT = bump.wrapS = bump.wrapT = THREE.RepeatWrapping
-  map.repeat.set(6, 6); bump.repeat.set(6, 6)
+  map.wrapS = map.wrapT = bump.wrapS = bump.wrapT = THREE.ClampToEdgeWrapping
+  map.colorSpace = THREE.SRGBColorSpace
   return (
     <>
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
