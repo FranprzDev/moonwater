@@ -167,7 +167,10 @@ function Simulator({ onBack }) {
             </div>
           )}
         </aside>
-        <section className="flex-1 min-w-0"><Scene /></section>
+        <section
+          className="flex-1 min-w-0"
+          style={{ background: 'radial-gradient(ellipse 90% 70% at 50% 110%, #2a4a7f55, #0b1020 60%, #05060c)' }}
+        ><Scene /></section>
       </main>
     </div>
   )

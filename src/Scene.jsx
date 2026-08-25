@@ -6,6 +6,22 @@ import * as THREE from 'three'
 import { useSim } from './sim/store'
 import { PlantISRU, IceWell, HabitatComplex, Infrastructure, LOOP_PATH, RETURN_PATH } from './Infrastructure'
 
+// textura radial suave para halos
+function makeGlowTexture() {
+  const c = document.createElement('canvas')
+  c.width = c.height = 128
+  const ctx = c.getContext('2d')
+  const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64)
+  g.addColorStop(0, 'rgba(255,255,255,1)')
+  g.addColorStop(0.35, 'rgba(255,255,255,0.35)')
+  g.addColorStop(1, 'rgba(255,255,255,0)')
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, 128, 128)
+  const t = new THREE.CanvasTexture(c)
+  return t
+}
+const glowTexture = makeGlowTexture()
+
 function Earth() {
   const tex = useTexture('/textures/earth.jpg')
   return (
@@ -16,8 +32,12 @@ function Earth() {
       </mesh>
       <mesh scale={1.04}>
         <sphereGeometry args={[3.2, 48, 48]} />
-        <meshBasicMaterial color="#6fb7ff" transparent opacity={0.12} side={2} />
+        <meshBasicMaterial color="#6fb7ff" transparent opacity={0.18} side={2} />
       </mesh>
+      {/* halo atmosférico */}
+      <sprite scale={[11, 11, 1]}>
+        <spriteMaterial map={glowTexture} color="#4a9fe8" transparent opacity={0.35} depthWrite={false} />
+      </sprite>
     </group>
   )
 }
@@ -158,9 +178,9 @@ function Rover() {
 
 export default function Scene() {
   return (
-    <Canvas shadows camera={{ position: [17, 11, 19], fov: 50 }}>
-      <color attach="background" args={['#05060c']} />
+    <Canvas shadows camera={{ position: [17, 11, 19], fov: 50 }} gl={{ alpha: true }}>
       <ambientLight intensity={0.3} />
+      <hemisphereLight args={['#4a6fbf', '#1a1c26', 0.5]} />
       <directionalLight position={[22, 14, 8]} intensity={2.4} color="#fff3e0" castShadow shadow-mapSize={[2048, 2048]} />
       <Stars radius={120} depth={60} count={4000} factor={4} fade speed={0.5} />
       <Earth />
@@ -174,7 +194,7 @@ export default function Scene() {
       <Infrastructure />
       <Flow />
       <EffectComposer>
-        <Bloom intensity={0.65} luminanceThreshold={0.55} mipmapBlur />
+        <Bloom intensity={1.1} luminanceThreshold={0.35} mipmapBlur radius={0.8} />
       </EffectComposer>
       <OrbitControls maxPolarAngle={Math.PI / 2.1} minDistance={8} maxDistance={45} />
     </Canvas>

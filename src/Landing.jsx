@@ -1,5 +1,31 @@
+import { useEffect, useRef, useState } from 'react'
 import { useSim } from './sim/store'
 import Scene from './Scene'
+
+// Aparece suavemente al entrar en viewport
+function Reveal({ children, delay = 0 }) {
+  const ref = useRef()
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([e]) => e.isIntersecting && setVisible(true),
+      { threshold: 0.15 },
+    )
+    if (ref.current) obs.observe(ref.current)
+    return () => obs.disconnect()
+  }, [])
+  return (
+    <div
+      ref={ref}
+      style={{ transitionDelay: `${delay}ms` }}
+      className={`transition-all duration-1000 ease-out ${
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      }`}
+    >
+      {children}
+    </div>
+  )
+}
 
 const STEPS = [
   {
@@ -61,17 +87,8 @@ export default function Landing({ onStart }) {
     <div className="min-h-screen bg-[#05060c] text-slate-100 font-sans">
       {/* NAV */}
       <nav className="fixed top-0 inset-x-0 z-40 backdrop-blur-md bg-[#05060c]/70 border-b border-slate-800/50">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center">
           <span className="font-black tracking-[0.2em] text-sky-300">MOONWATER</span>
-          <div className="hidden md:flex gap-6 text-xs text-slate-400">
-            <a href="#ciencia" className="hover:text-sky-300 transition">La ciencia</a>
-            <a href="#como" className="hover:text-sky-300 transition">Cómo funciona</a>
-            <a href="#simulador" className="hover:text-sky-300 transition">Simulador</a>
-            <a href="#equipo" className="hover:text-sky-300 transition">Equipo</a>
-          </div>
-          <button onClick={startFree} className="bg-sky-600 hover:bg-sky-500 rounded-lg px-4 py-1.5 text-sm font-semibold transition">
-            Lanzar
-          </button>
         </div>
       </nav>
 
@@ -89,7 +106,7 @@ export default function Landing({ onStart }) {
           <div className="absolute w-4 h-4 rounded-full bg-slate-400/50 top-12 left-27" />
           <div className="absolute w-2.5 h-2.5 rounded-full bg-slate-400/70 top-26 left-8" />
         </div>
-        <p className="relative text-sky-400 tracking-[0.35em] text-xs md:text-sm mb-4 uppercase">Hay agua en la Luna. Y podemos ir a buscarla.</p>
+        <p className="relative text-sky-400 tracking-[0.35em] text-xs md:text-sm mb-4 uppercase">Hay agua en la Luna. Nosotros vamos a buscarla.</p>
         <h1 className="relative text-6xl md:text-8xl font-black tracking-[0.12em] text-white mb-6 drop-shadow-[0_0_40px_rgba(120,180,255,0.35)]">
           MOONWATER
         </h1>
@@ -102,8 +119,8 @@ export default function Landing({ onStart }) {
           <button onClick={startFree} className="bg-sky-600 hover:bg-sky-500 text-white rounded-xl px-9 py-4 font-semibold transition shadow-[0_0_40px_rgba(56,150,220,0.45)]">
             Explorar el simulador
           </button>
-          <a href="#ciencia" className="border border-slate-600 hover:border-slate-400 text-slate-300 rounded-xl px-9 py-4 font-semibold transition">
-            ¿De dónde salió la idea?
+          <a href="#como" className="border border-slate-600 hover:border-slate-400 text-slate-300 rounded-xl px-9 py-4 font-semibold transition">
+            ¿Cómo funciona?
           </a>
         </div>
         <div className="absolute bottom-6 text-slate-600 animate-bounce text-xl">↓</div>
@@ -113,20 +130,22 @@ export default function Landing({ onStart }) {
       <Section id="ciencia" className="py-24 border-t border-slate-800/60">
         <p className="text-sky-400 text-xs tracking-[0.3em] uppercase mb-3">La ciencia es real</p>
         <h2 className="text-3xl md:text-4xl font-bold mb-6 max-w-3xl">
-          No es ciencia ficción: es el plan de la NASA para quedarse en la Luna.
+          El agua está ahí. La tecnología para alcanzarla ya existe.
         </h2>
         <p className="text-slate-400 max-w-3xl mb-12 leading-relaxed">
           Desde 1998, múltiples misiones detectaron y confirmaron hielo de agua dentro de cráteres
-          polares que nunca reciben luz solar. Es uno de los descubrimientos más importantes para la
-          exploración espacial: <span className="text-slate-200">el agua es bebida, oxígeno y combustible.</span>{' '}
-          Quien la produzca localmente, dominará el siguiente capítulo de la humanidad en el espacio.
+          polares que nunca reciben luz solar. Es uno de los recursos más valiosos del sistema solar:
+          <span className="text-slate-200"> el agua es bebida, oxígeno y combustible.</span>{' '}
+          Extraerla en el lugar lo cambia todo — y nosotros lo hacemos visible.
         </p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {FACTS.map((f) => (
-            <div key={f.v} className="rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-900/80 to-transparent p-6">
-              <div className="text-2xl font-mono font-bold text-sky-300 mb-3">{f.v}</div>
-              <p className="text-xs text-slate-400 leading-relaxed">{f.l}</p>
-            </div>
+          {FACTS.map((f, i) => (
+            <Reveal key={f.v} delay={i * 120}>
+              <div className="rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-900/80 to-transparent p-6">
+                <div className="text-2xl font-mono font-bold text-sky-300 mb-3">{f.v}</div>
+                <p className="text-xs text-slate-400 leading-relaxed">{f.l}</p>
+              </div>
+            </Reveal>
           ))}
         </div>
       </Section>
@@ -137,15 +156,17 @@ export default function Landing({ onStart }) {
         <h2 className="text-3xl md:text-4xl font-bold mb-14">Del hielo enterrado al vaso de agua</h2>
         <div className="grid md:grid-cols-3 gap-6 relative">
           <div className="hidden md:block absolute top-16 left-[16%] right-[16%] h-px bg-gradient-to-r from-sky-800 via-sky-600 to-emerald-700" />
-          {STEPS.map((s) => (
-            <div key={s.n} className="relative rounded-2xl border border-slate-800 bg-slate-900/50 p-7 hover:border-sky-700/60 hover:-translate-y-1 transition duration-300">
-              <div className="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center text-2xl mb-5 ring-4 ring-[#05060c]">{s.icon}</div>
-              <div className="flex items-center gap-3 mb-2">
-                <h3 className="text-xl font-bold text-sky-300">{s.t}</h3>
-                <span className="text-[10px] uppercase tracking-wider text-slate-500 border border-slate-700 rounded-full px-2 py-0.5">{s.tag}</span>
+          {STEPS.map((s, i) => (
+            <Reveal key={s.n} delay={i * 150}>
+              <div className="relative rounded-2xl border border-slate-800 bg-slate-900/50 p-7 hover:border-sky-700/60 hover:-translate-y-1 transition duration-300">
+                <div className="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center text-2xl mb-5 ring-4 ring-[#05060c]">{s.icon}</div>
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="text-xl font-bold text-sky-300">{s.t}</h3>
+                  <span className="text-[10px] uppercase tracking-wider text-slate-500 border border-slate-700 rounded-full px-2 py-0.5">{s.tag}</span>
+                </div>
+                <p className="text-sm text-slate-400 leading-relaxed">{s.d}</p>
               </div>
-              <p className="text-sm text-slate-400 leading-relaxed">{s.d}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </Section>
@@ -159,7 +180,10 @@ export default function Landing({ onStart }) {
           Pozo de hielo, planta ISRU, hábitat y cada gota viajando entre estaciones.
         </p>
         <div className="rounded-3xl overflow-hidden border border-slate-800 shadow-[0_0_80px_rgba(40,90,160,0.25)] relative">
-          <div className="h-[420px] md:h-[560px] pointer-events-auto"><Scene /></div>
+          <div
+            className="h-[420px] md:h-[560px]"
+            style={{ background: 'radial-gradient(ellipse 90% 70% at 50% 110%, #2a4a7f55, #0b1020 60%, #05060c)' }}
+          ><Scene /></div>
           <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-3">
             <button onClick={startFree} className="bg-sky-600/95 hover:bg-sky-500 rounded-xl px-6 py-3 text-sm font-semibold backdrop-blur transition">
               Tomar el control →
@@ -173,6 +197,7 @@ export default function Landing({ onStart }) {
 
       {/* MODO COMPETITIVO */}
       <Section className="py-24">
+        <Reveal>
         <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-950/40 via-slate-900/60 to-slate-900/20 p-8 md:p-14 grid md:grid-cols-2 gap-10 items-center">
           <div>
             <p className="text-amber-400 text-xs tracking-[0.3em] uppercase mb-3">Desafío</p>
@@ -202,6 +227,7 @@ export default function Landing({ onStart }) {
             ))}
           </div>
         </div>
+        </Reveal>
       </Section>
 
       {/* EQUIPO */}
