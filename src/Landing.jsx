@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Stars } from '@react-three/drei'
+import { Stars, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import { useSim } from './sim/store'
 import Scene from './Scene'
@@ -84,58 +84,67 @@ function Section({ id, className = '', children }) {
 // Fondo: viaje espacial ligado al scroll (Tierra -> Luna)
 const TRAVEL_DEPTH = 260
 
+function makeGlowTexture() {
+  const c = document.createElement('canvas')
+  c.width = c.height = 128
+  const ctx = c.getContext('2d')
+  const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64)
+  g.addColorStop(0, 'rgba(255,255,255,1)')
+  g.addColorStop(0.3, 'rgba(255,255,255,0.25)')
+  g.addColorStop(1, 'rgba(255,255,255,0)')
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, 128, 128)
+  return new THREE.CanvasTexture(c)
+}
+
 function Traveler({ progressRef }) {
   const moon = useRef()
   const earth = useRef()
+  const glow = useRef(makeGlowTexture())
+  const earthTex = useTexture('/textures/earth.jpg')
+  const moonTex = useTexture('/textures/moonground.jpg')
   useFrame((state) => {
     const p = progressRef.current
-    state.camera.position.z = 10 - p * TRAVEL_DEPTH
-    state.camera.position.y = Math.sin(p * Math.PI) * 4
-    state.camera.rotation.z = p * 0.12
-    if (earth.current) earth.current.visible = p < 0.35
+    const ease = p * p * (3 - 2 * p)
+    state.camera.position.z = 10 - ease * TRAVEL_DEPTH
+    state.camera.rotation.z = ease * 0.08
+    if (earth.current) earth.current.visible = ease < 0.3
     if (moon.current) {
-      // la Luna crece a medida que te acercás
-      const near = Math.max(0, (p - 0.45) / 0.55)
-      moon.current.scale.setScalar(0.4 + near * 2.2)
+      const near = Math.max(0, (ease - 0.5) / 0.5)
+      moon.current.position.z = 8 - TRAVEL_DEPTH + near * (TRAVEL_DEPTH - 26)
+      moon.current.rotation.y = 0.4 + ease * 0.5
     }
   })
   return (
     <group>
-      <Stars radius={140} depth={TRAVEL_DEPTH + 80} count={7000} factor={5} saturation={0.4} fade speed={0.4} />
+      <Stars radius={160} depth={TRAVEL_DEPTH + 100} count={8000} factor={5} saturation={0.3} fade speed={0.3} />
       {/* Tierra detrás (inicio del viaje) */}
-      <group ref={earth} position={[14, 8, -18]}>
+      <group ref={earth} position={[16, 9, -22]}>
         <mesh>
-          <sphereGeometry args={[5, 48, 48]} />
-          <meshBasicMaterial color="#2a6fd4" />
+          <sphereGeometry args={[5.5, 64, 64]} />
+          <meshStandardMaterial map={earthTex} roughness={0.9} />
         </mesh>
-        <mesh scale={1.05}>
-          <sphereGeometry args={[5, 32, 32]} />
-          <meshBasicMaterial color="#6fb7ff" transparent opacity={0.15} side={2} />
+        <mesh scale={1.04}>
+          <sphereGeometry args={[5.5, 48, 48]} />
+          <meshBasicMaterial color="#6fb7ff" transparent opacity={0.16} side={2} />
         </mesh>
+        <sprite scale={[26, 26, 1]}>
+          <spriteMaterial map={glow.current} color="#3a7fd4" transparent opacity={0.4} depthWrite={false} />
+        </sprite>
       </group>
       {/* Luna al final del viaje */}
-      <group ref={moon} position={[-6, -2, 8 - TRAVEL_DEPTH]}>
+      <group ref={moon} position={[-7, -3, 8 - TRAVEL_DEPTH]}>
         <mesh>
-          <sphereGeometry args={[14, 64, 64]} />
-          <meshBasicMaterial color="#c9ccd4" />
+          <sphereGeometry args={[16, 96, 96]} />
+          <meshStandardMaterial map={moonTex} bumpMap={moonTex} bumpScale={2.5} color="#d8d5cd" roughness={1} />
         </mesh>
-        {/* cráteres */}
-        {[...Array(14)].map((_, i) => {
-          const a = i * 2.4, r = 4 + (i % 5) * 2
-          const v = new THREE.Vector3(Math.cos(a) * r, Math.sin(a * 1.3) * r * 0.7, Math.sqrt(Math.max(0, 196 - r * r)) * (i % 2 ? 1 : -1) * 0.5)
-          return <mesh key={i} position={v.clone().normalize().multiplyScalar(13.6)}>
-            <circleGeometry args={[0.7 + (i % 3) * 0.5, 24]} />
-            <meshBasicMaterial color="#9ba0ab" />
-          </mesh>
-        })}
-        <pointLight position={[10, 6, 20]} intensity={8000} distance={120} color="#fff3e0" />
+        <directionalLight position={[30, 15, 40]} intensity={4} color="#fff3e0" />
       </group>
-      {/* nebulosas suaves */}
-      {[[30, 10, -60, '#1a3a6e'], [-35, -12, -140, '#2a1a5e'], [20, 14, -210, '#0e2a4e']].map(([x, y, z, c], i) => (
-        <mesh key={i} position={[x, y, z]}>
-          <sphereGeometry args={[22 + i * 8, 16, 16]} />
-          <meshBasicMaterial color={c} transparent opacity={0.16} />
-        </mesh>
+      {/* nebulosas difusas */}
+      {[[35, 12, -70, '#1a3a6e', 60], [-40, -14, -150, '#2a1a5e', 70], [25, 18, -230, '#0e2a4e', 80]].map(([x, y, z, c, s], i) => (
+        <sprite key={i} position={[x, y, z]} scale={[s, s, 1]}>
+          <spriteMaterial map={glow.current} color={c} transparent opacity={0.35} depthWrite={false} />
+        </sprite>
       ))}
     </group>
   )
