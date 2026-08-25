@@ -343,11 +343,7 @@ export default function Landing({ onStart }) {
             </div>
           </div>
         </Reveal>
-        <div className="text-center pt-20 pb-8">
-          <button onClick={startFree} className="bg-sky-600 hover:bg-sky-500 text-white rounded-xl px-10 py-4 font-semibold transition shadow-[0_0_40px_rgba(56,150,220,0.4)]">
-            Empezar ahora
-          </button>
-        </div>
+        <div className="h-10"></div>
       </Section>
 
       <footer className="border-t border-slate-800/60 py-10 text-center text-xs text-slate-600">
