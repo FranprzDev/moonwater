@@ -1,6 +1,13 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Scene from './Scene'
+import Landing from './Landing'
 import { useSim } from './sim/store'
+
+export default function App() {
+  const [view, setView] = useState('landing')
+  if (view === 'landing') return <Landing onStart={() => setView('sim')} />
+  return <Simulator onBack={() => setView('landing')} />
+}
 
 const PARAMS = [
   { k: 'crew', label: 'Tripulación (astronautas)', min: 1, max: 12, step: 1 },
@@ -42,9 +49,9 @@ function Metrics() {
     <div className="mt-3 pt-3 border-t border-slate-800 text-xs space-y-1">
       {row('Días simulados', (t / 24).toFixed(1))}
       {row('Demanda hábitat', `${m.dailyUse.toFixed(0)} kg/día`)}
-      {row('Reciclado', `${m.recycled.toFixed(0)} kg/día`)}
+      {row('Agua reciclada', `${m.recycled.toFixed(0)} kg/día`)}
       {row('Extraído ISRU', `${m.produced.toFixed(0)} kg/día`)}
-      {row('Cierre del loop', `${(m.closure * 100).toFixed(0)}%`, m.closure >= 1 ? 'text-emerald-400' : 'text-amber-400')}
+      {row('Cobertura', `${(m.closure * 100).toFixed(0)}%`, m.closure >= 1 ? 'text-emerald-400' : 'text-amber-400')}
       {row('Banco de agua', `${bank.toFixed(0)} kg`)}
       {row('Energía requerida', `${m.powerNeededKw.toFixed(1)} kW`)}
       {row('Margen solar', `${m.powerMarginKw.toFixed(1)} kW`, m.powerMarginKw >= 0 ? 'text-emerald-400' : 'text-red-400')}
@@ -52,7 +59,7 @@ function Metrics() {
   )
 }
 
-export default function App() {
+function Simulator({ onBack }) {
   const running = useSim((s) => s.running)
   const toggle = useSim((s) => s.toggleRun)
   const reset = useSim((s) => s.reset)
@@ -95,12 +102,18 @@ export default function App() {
       )}
       <header className="px-5 py-3 border-b border-slate-800 flex items-center justify-between">
         <div>
-          <h1 className="text-base font-bold tracking-widest text-sky-300">MOONWATER · El loop que empieza en la Tierra</h1>
+          <h1 className="text-base font-bold tracking-widest text-sky-300">MOONWATER · Agua lunar</h1>
           <p className="text-xs text-slate-500">
-            Ciclo cerrado de agua lunar — simulador paramétrico con datos NASA · espejo del sistema hídrico de Delfín Gallo, Tucumán
+            Extracción de agua en la Luna — simulador 3D paramétrico con datos NASA
           </p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={onBack}
+            className="rounded-md px-4 py-2 text-sm border border-slate-700 text-slate-400 hover:text-slate-200 transition"
+          >
+            ← Inicio
+          </button>
           {['free', 'compete'].map((mo) => (
             <button
               key={mo}
@@ -149,27 +162,10 @@ export default function App() {
               </div>
               <p className="mt-2 text-amber-100/70 leading-relaxed">
                 Sobreviví 30 días lunares: banco de agua &gt; 0 y margen de energía ≥ 0.
-                Puntaje = cierre del loop + agua acumulada + eficiencia energética.
+                Puntaje = cobertura + agua acumulada + eficiencia energética.
               </p>
             </div>
           )}
-          <div className="mt-5 pt-3 border-t border-slate-800 text-xs leading-relaxed text-slate-400 space-y-2">
-            <h2 className="text-xs uppercase tracking-widest text-slate-400">El espejo terrestre</h2>
-            <p>
-              En Delfín Gallo el problema no fue la fuente (los pozos) sino la red:
-              sin interconexiones, cada barrio depende de pocas conducciones.
-              Un loop abierto y fragmentado.
-            </p>
-            <p>
-              En la Luna no hay ríos ni lluvia: cada gota debe cerrar su ciclo.
-              La ingeniería que hace posible vivir allí — reciclar &gt;93%,
-              balancear masa y energía, priorizar inversiones — es la misma
-              que necesita la Tierra para cerrar sus propios loops hídricos.
-            </p>
-            <p className="italic text-amber-300">
-              No vamos a la Luna a escapar del problema. Vamos porque nos obliga a resolverlo en su forma más pura.
-            </p>
-          </div>
         </aside>
         <section className="flex-1 min-w-0"><Scene /></section>
       </main>

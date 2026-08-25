@@ -1,12 +1,12 @@
 # MoonWater 🌙💧
 
-**El loop que empieza en la Tierra** — Simulador 3D interactivo de ciclo cerrado de agua para una base lunar.
+Simulador 3D interactivo: extracción de agua en la Luna.
 
 Proyecto para el [NASA Space Apps Challenge 2026](https://www.spaceappschallenge.org/).
 
 ## ¿Qué es?
 
-Un simulador paramétrico en tiempo real del loop hídrico completo de una base polar lunar:
+Una base lunar completa, simulada en tiempo real:
 
 - **Pozo de hielo** en una Región de Sombra Permanente (PSR)
 - **Planta ISRU**: reactor térmico tipo LADI, electrólisis PEM, tanques criogénicos H₂/O₂
@@ -16,7 +16,7 @@ Un simulador paramétrico en tiempo real del loop hídrico completo de una base 
 
 ## Modo Competitivo ⚔️
 
-Sobreviví 30 días lunares manteniendo el banco de agua positivo y el margen energético sin colapsar. El puntaje combina cierre del loop, agua acumulada y eficiencia energética.
+Sobreviví 30 días lunares manteniendo el banco de agua positivo y el margen energético sin colapsar. El puntaje combina cobertura de demanda, agua acumulada y eficiencia energética.
 
 ## Stack
 
@@ -32,12 +32,10 @@ npm install
 npm run dev
 ```
 
-## Filosofía
+## ¿Por qué?
 
-La Luna es el caso límite donde la ingeniería del agua no puede esconder sus deudas:
-sin ríos ni lluvia, cada gota debe cerrar su ciclo. Las mismas herramientas de
-optimización y planificación que resuelven el loop lunar son las que necesita la
-Tierra para cerrar sus propios loops hídricos.
+Porque el agua es el recurso más valioso de la exploración espacial, y porque ya
+está ahí: en los cráteres polares lunares, esperando ser extraída.
 
 ---
 
