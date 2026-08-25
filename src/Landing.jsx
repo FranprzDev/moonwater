@@ -108,7 +108,6 @@ function Traveler({ progressRef }) {
     const ease = p * p * (3 - 2 * p)
     state.camera.position.z = 10 - ease * TRAVEL_DEPTH
     state.camera.rotation.z = ease * 0.08
-    if (earth.current) earth.current.visible = ease < 0.3
     if (moon.current) {
       const near = Math.max(0, (ease - 0.5) / 0.5)
       moon.current.position.z = 8 - TRAVEL_DEPTH + near * (TRAVEL_DEPTH - 26)
@@ -118,7 +117,7 @@ function Traveler({ progressRef }) {
   return (
     <group>
       <Stars radius={160} depth={TRAVEL_DEPTH + 100} count={8000} factor={5} saturation={0.3} fade speed={0.3} />
-      {/* Tierra detrás (inicio del viaje) */}
+      {/* Tierra detrás (inicio del viaje) — visible durante todo el recorrido, se aleja atrás */}
       <group ref={earth} position={[16, 9, -22]}>
         <mesh>
           <sphereGeometry args={[5.5, 64, 64]} />
@@ -130,6 +129,43 @@ function Traveler({ progressRef }) {
         </mesh>
         <sprite scale={[26, 26, 1]}>
           <spriteMaterial map={glow.current} color="#3a7fd4" transparent opacity={0.4} depthWrite={false} />
+        </sprite>
+      </group>
+      {/* Marte: mitad del viaje */}
+      <group position={[-22, 10, -125]} rotation={[0, 0.6, 0]}>
+        <mesh>
+          <sphereGeometry args={[4.2, 64, 64]} />
+          <meshStandardMaterial color="#c1553a" roughness={0.95} />
+        </mesh>
+        {/* casquete polar */}
+        <mesh position={[0, 3.9, 0]}>
+          <sphereGeometry args={[1.1, 24, 12, 0, Math.PI * 2, 0, Math.PI / 5]} />
+          <meshStandardMaterial color="#e8ddd0" roughness={0.9} />
+        </mesh>
+        <sprite scale={[20, 20, 1]}>
+          <spriteMaterial map={glow.current} color="#c1553a" transparent opacity={0.25} depthWrite={false} />
+        </sprite>
+      </group>
+      {/* Gigante gaseoso con anillos: tramo final */}
+      <group position={[26, -8, -205]} rotation={[0.35, 0, 0.15]}>
+        <mesh>
+          <sphereGeometry args={[7, 64, 64]} />
+          <meshStandardMaterial color="#d8b98a" roughness={0.85} />
+        </mesh>
+        {/* bandas */}
+        {[1.2, -0.8, 2.8, -3.4].map((y, i) => (
+          <mesh key={i} position={[0, y, 0]}>
+            <torusGeometry args={[7.05 + Math.abs(y) * 0.02, 0.55 - Math.abs(y) * 0.08, 8, 64]} rotation={[Math.PI / 2, 0, 0]} />
+            <meshStandardMaterial color={i % 2 ? '#b8925f' : '#e8cf9e'} transparent opacity={0.55} />
+          </mesh>
+        ))}
+        {/* anillos */}
+        <mesh rotation={[Math.PI / 2.4, 0, 0]}>
+          <ringGeometry args={[9.5, 14.5, 96]} />
+          <meshBasicMaterial color="#cbb387" transparent opacity={0.4} side={2} />
+        </mesh>
+        <sprite scale={[40, 40, 1]}>
+          <spriteMaterial map={glow.current} color="#d8b98a" transparent opacity={0.22} depthWrite={false} />
         </sprite>
       </group>
       {/* Luna al final del viaje */}
@@ -343,11 +379,6 @@ export default function Landing({ onStart }) {
             </div>
           </div>
         </Reveal>
-        <div className="text-center pt-20 pb-8">
-          <button onClick={startFree} className="bg-sky-600 hover:bg-sky-500 text-white rounded-xl px-10 py-4 font-semibold transition shadow-[0_0_40px_rgba(56,150,220,0.4)]">
-            Empezar ahora
-          </button>
-        </div>
       </Section>
 
       <footer className="border-t border-slate-800/60 py-10 text-center text-xs text-slate-600">
