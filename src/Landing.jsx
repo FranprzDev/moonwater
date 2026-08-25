@@ -1,123 +1,265 @@
 import { useSim } from './sim/store'
+import Scene from './Scene'
 
 const STEPS = [
   {
     n: '01',
     t: 'Extraer',
-    d: 'Un rover mina regolito helado en un cráter polar (PSR), donde la NASA confirmó hielo de agua.',
+    d: 'En los cráteres polares hay zonas que nunca vieron el sol en 4.000 millones de años. Ahí, el agua permanece como hielo mezclado con el regolito. Un rover mina ese suelo helado.',
     icon: '⛏️',
+    tag: 'Rover minero',
   },
   {
     n: '02',
     t: 'Procesar',
-    d: 'Un horno sublima el hielo, lo condensa y lo separa en agua potable, oxígeno e hidrógeno.',
+    d: 'El regolito entra a un horno que sublima el hielo. El vapor se condensa en agua pura y una electrólisis la separa en oxígeno para respirar e hidrógeno para combustible.',
     icon: '⚗️',
+    tag: 'Planta ISRU',
   },
   {
     n: '03',
     t: 'Sostener',
-    d: 'La base recicla más del 93% del agua, como la Estación Espacial Internacional.',
+    d: 'Cada gota cuenta: la base recicla aguas grises, humedad y más del 93% de todo lo que consume, igual que la Estación Espacial Internacional lo hace hoy.',
     icon: '🏠',
+    tag: 'Hábitat + ECLSS',
   },
 ]
 
-const STATS = [
-  { v: '~5%', l: 'hielo en el regolito polar' },
-  { v: '6.000+ M$', l: 'costaría llevar 1 tonelada de agua desde la Tierra' },
-  { v: '>93%', l: 'del agua se recupera con reciclaje tipo ISS' },
+const FACTS = [
+  {
+    v: '1998–2020',
+    l: 'Cuatro misiones (Lunar Prospector, LCROSS, Chandrayaan-1, SOFIA) confirmaron hielo de agua en los polos lunares.',
+  },
+  {
+    v: '~600 Mton',
+    l: 'Estimaciones del USGS sugieren miles de millones de toneladas de hielo en las Regiones de Sombra Permanente.',
+  },
+  {
+    v: '1 botella = 83.000 U$S',
+    l: 'Llevar un litro de agua a la Luna cuesta decenas de miles de dólares. Extraerla allá cambia toda la economía espacial.',
+  },
+  {
+    v: 'Artemis III',
+    l: 'NASA planea volver con astronautas al polo sur lunar. El agua local es clave para quedarse.',
+  },
 ]
+
+const TEAM = [
+  { n: 'Agustina Bitran', r: 'Investigación Operativa' },
+  { n: 'Francisco Perez', r: 'Desarrollo & Simulación' },
+  { n: 'Gonzalo Posse', r: 'Análisis de Datos' },
+  { n: 'Lucas Roldán', r: 'Modelado de Sistemas' },
+]
+
+function Section({ id, className = '', children }) {
+  return (
+    <section id={id} className={`max-w-6xl mx-auto px-6 ${className}`}>
+      {children}
+    </section>
+  )
+}
 
 export default function Landing({ onStart }) {
   const setMode = useSim((s) => s.setMode)
+  const startFree = () => { setMode('free'); onStart() }
+  const startComp = () => { setMode('compete'); onStart() }
+
   return (
-    <div className="min-h-screen bg-[#05060c] text-slate-100 font-sans overflow-y-auto">
-      {/* Hero */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6">
-        <div
-          className="absolute inset-0 opacity-40"
-          style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 120%, #3b5a8f55, transparent), radial-gradient(circle at 80% 15%, #1c274055, transparent 50%)' }}
-        />
-        {/* luna CSS */}
-        <div className="relative w-28 h-28 rounded-full bg-gradient-to-br from-slate-200 to-slate-500 shadow-[0_0_80px_20px_rgba(200,215,255,0.25)] mb-8">
-          <div className="absolute w-4 h-4 rounded-full bg-slate-400/70 top-7 left-8" />
-          <div className="absolute w-2.5 h-2.5 rounded-full bg-slate-400/60 top-14 left-14" />
-          <div className="absolute w-3 h-3 rounded-full bg-slate-400/50 top-9 left-20" />
+    <div className="min-h-screen bg-[#05060c] text-slate-100 font-sans">
+      {/* NAV */}
+      <nav className="fixed top-0 inset-x-0 z-40 backdrop-blur-md bg-[#05060c]/70 border-b border-slate-800/50">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+          <span className="font-black tracking-[0.2em] text-sky-300">MOONWATER</span>
+          <div className="hidden md:flex gap-6 text-xs text-slate-400">
+            <a href="#ciencia" className="hover:text-sky-300 transition">La ciencia</a>
+            <a href="#como" className="hover:text-sky-300 transition">Cómo funciona</a>
+            <a href="#simulador" className="hover:text-sky-300 transition">Simulador</a>
+            <a href="#equipo" className="hover:text-sky-300 transition">Equipo</a>
+          </div>
+          <button onClick={startFree} className="bg-sky-600 hover:bg-sky-500 rounded-lg px-4 py-1.5 text-sm font-semibold transition">
+            Lanzar
+          </button>
         </div>
-        <h1 className="relative text-5xl md:text-7xl font-black tracking-[0.15em] text-white mb-4">MOONWATER</h1>
-        <p className="relative text-lg md:text-2xl text-sky-300 font-light max-w-2xl mb-3">
-          Agua en la Luna.
-        </p>
-        <p className="relative text-sm md:text-base text-slate-400 max-w-xl mb-10 leading-relaxed">
-          La NASA confirmó hielo de agua en los polos lunares. Construimos un simulador 3D
-          interactivo que muestra cómo extraerla, procesarla y sostener una base con ella.
+      </nav>
+
+      {/* HERO */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden">
+        <Stars />
+        <div
+          className="absolute inset-0"
+          style={{ background: 'radial-gradient(ellipse 70% 55% at 50% 115%, #3b5a8f44, transparent), radial-gradient(circle at 82% 12%, #22305533, transparent 45%)' }}
+        />
+        {/* Luna */}
+        <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-full bg-gradient-to-br from-slate-100 via-slate-300 to-slate-500 shadow-[0_0_120px_30px_rgba(190,210,255,0.28)] mb-10 animate-[float_7s_ease-in-out_infinite]">
+          <div className="absolute w-5 h-5 rounded-full bg-slate-400/70 top-9 left-11" />
+          <div className="absolute w-3 h-3 rounded-full bg-slate-400/60 top-20 left-20" />
+          <div className="absolute w-4 h-4 rounded-full bg-slate-400/50 top-12 left-27" />
+          <div className="absolute w-2.5 h-2.5 rounded-full bg-slate-400/70 top-26 left-8" />
+        </div>
+        <p className="relative text-sky-400 tracking-[0.35em] text-xs md:text-sm mb-4 uppercase">Hay agua en la Luna. Y podemos ir a buscarla.</p>
+        <h1 className="relative text-6xl md:text-8xl font-black tracking-[0.12em] text-white mb-6 drop-shadow-[0_0_40px_rgba(120,180,255,0.35)]">
+          MOONWATER
+        </h1>
+        <p className="relative text-base md:text-xl text-slate-300 max-w-2xl mb-10 leading-relaxed font-light">
+          El primer simulador 3D interactivo de una base lunar autosustentable:
+          extraé hielo del regolito, convertilo en agua potable, oxígeno y combustible,
+          y mantené viva a tu tripulación.
         </p>
         <div className="relative flex flex-col sm:flex-row gap-4">
-          <button
-            onClick={() => setMode('free') || onStart()}
-            className="bg-sky-600 hover:bg-sky-500 text-white rounded-xl px-8 py-4 font-semibold transition shadow-[0_0_30px_rgba(56,150,220,0.4)]"
-          >
+          <button onClick={startFree} className="bg-sky-600 hover:bg-sky-500 text-white rounded-xl px-9 py-4 font-semibold transition shadow-[0_0_40px_rgba(56,150,220,0.45)]">
             Explorar el simulador
           </button>
-          <button
-            onClick={() => setMode('compete') || onStart()}
-            className="border border-amber-400/60 text-amber-300 hover:bg-amber-400/10 rounded-xl px-8 py-4 font-semibold transition"
-          >
-            ⚔️ Modo competitivo
-          </button>
+          <a href="#ciencia" className="border border-slate-600 hover:border-slate-400 text-slate-300 rounded-xl px-9 py-4 font-semibold transition">
+            ¿De dónde salió la idea?
+          </a>
         </div>
+        <div className="absolute bottom-6 text-slate-600 animate-bounce text-xl">↓</div>
       </section>
 
-      {/* Cómo funciona */}
-      <section className="max-w-5xl mx-auto px-6 py-24 border-t border-slate-800/60">
-        <h2 className="text-center text-3xl font-bold mb-3">¿Cómo se obtiene agua en la Luna?</h2>
-        <p className="text-center text-slate-400 text-sm mb-14 max-w-xl mx-auto">
-          Tres etapas, todas basadas en tecnología real que NASA ya está desarrollando para Artemis.
+      {/* CIENCIA */}
+      <Section id="ciencia" className="py-24 border-t border-slate-800/60">
+        <p className="text-sky-400 text-xs tracking-[0.3em] uppercase mb-3">La ciencia es real</p>
+        <h2 className="text-3xl md:text-4xl font-bold mb-6 max-w-3xl">
+          No es ciencia ficción: es el plan de la NASA para quedarse en la Luna.
+        </h2>
+        <p className="text-slate-400 max-w-3xl mb-12 leading-relaxed">
+          Desde 1998, múltiples misiones detectaron y confirmaron hielo de agua dentro de cráteres
+          polares que nunca reciben luz solar. Es uno de los descubrimientos más importantes para la
+          exploración espacial: <span className="text-slate-200">el agua es bebida, oxígeno y combustible.</span>{' '}
+          Quien la produzca localmente, dominará el siguiente capítulo de la humanidad en el espacio.
         </p>
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {FACTS.map((f) => (
+            <div key={f.v} className="rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-900/80 to-transparent p-6">
+              <div className="text-2xl font-mono font-bold text-sky-300 mb-3">{f.v}</div>
+              <p className="text-xs text-slate-400 leading-relaxed">{f.l}</p>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* CÓMO FUNCIONA */}
+      <Section id="como" className="py-24">
+        <p className="text-sky-400 text-xs tracking-[0.3em] uppercase mb-3">Cómo funciona</p>
+        <h2 className="text-3xl md:text-4xl font-bold mb-14">Del hielo enterrado al vaso de agua</h2>
+        <div className="grid md:grid-cols-3 gap-6 relative">
+          <div className="hidden md:block absolute top-16 left-[16%] right-[16%] h-px bg-gradient-to-r from-sky-800 via-sky-600 to-emerald-700" />
           {STEPS.map((s) => (
-            <div key={s.n} className="rounded-2xl border border-slate-800 bg-slate-900/50 p-7 hover:border-sky-700/60 transition">
-              <div className="flex items-baseline justify-between mb-4">
-                <span className="text-3xl">{s.icon}</span>
-                <span className="text-slate-600 font-mono text-sm">{s.n}</span>
+            <div key={s.n} className="relative rounded-2xl border border-slate-800 bg-slate-900/50 p-7 hover:border-sky-700/60 hover:-translate-y-1 transition duration-300">
+              <div className="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center text-2xl mb-5 ring-4 ring-[#05060c]">{s.icon}</div>
+              <div className="flex items-center gap-3 mb-2">
+                <h3 className="text-xl font-bold text-sky-300">{s.t}</h3>
+                <span className="text-[10px] uppercase tracking-wider text-slate-500 border border-slate-700 rounded-full px-2 py-0.5">{s.tag}</span>
               </div>
-              <h3 className="text-xl font-bold text-sky-300 mb-2">{s.t}</h3>
               <p className="text-sm text-slate-400 leading-relaxed">{s.d}</p>
             </div>
           ))}
         </div>
-      </section>
+      </Section>
 
-      {/* Datos */}
-      <section className="max-w-5xl mx-auto px-6 pb-24">
-        <div className="grid md:grid-cols-3 gap-6 text-center">
-          {STATS.map((s) => (
-            <div key={s.v} className="py-8">
-              <div className="text-4xl font-mono font-bold text-sky-300 mb-2">{s.v}</div>
-              <div className="text-xs text-slate-500 uppercase tracking-wide">{s.l}</div>
+      {/* SIMULADOR EN VIVO */}
+      <Section id="simulador" className="py-24">
+        <p className="text-sky-400 text-xs tracking-[0.3em] uppercase mb-3">Probalo ahora</p>
+        <h2 className="text-3xl md:text-4xl font-bold mb-6">La base, funcionando en vivo</h2>
+        <p className="text-slate-400 max-w-2xl mb-8 leading-relaxed">
+          Esto no es un video: es la simulación corriendo en tu navegador en este momento.
+          Pozo de hielo, planta ISRU, hábitat y cada gota viajando entre estaciones.
+        </p>
+        <div className="rounded-3xl overflow-hidden border border-slate-800 shadow-[0_0_80px_rgba(40,90,160,0.25)] relative">
+          <div className="h-[420px] md:h-[560px] pointer-events-auto"><Scene /></div>
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-3">
+            <button onClick={startFree} className="bg-sky-600/95 hover:bg-sky-500 rounded-xl px-6 py-3 text-sm font-semibold backdrop-blur transition">
+              Tomar el control →
+            </button>
+            <button onClick={startComp} className="bg-black/60 hover:bg-amber-600/90 border border-amber-500/50 text-amber-300 rounded-xl px-6 py-3 text-sm font-semibold backdrop-blur transition">
+              ⚔️ Modo competitivo
+            </button>
+          </div>
+        </div>
+      </Section>
+
+      {/* MODO COMPETITIVO */}
+      <Section className="py-24">
+        <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-950/40 via-slate-900/60 to-slate-900/20 p-8 md:p-14 grid md:grid-cols-2 gap-10 items-center">
+          <div>
+            <p className="text-amber-400 text-xs tracking-[0.3em] uppercase mb-3">Desafío</p>
+            <h2 className="text-3xl font-bold mb-5">¿Podés mantener viva la base 30 días?</h2>
+            <p className="text-slate-400 text-sm leading-relaxed mb-6">
+              Ajustá tripulación, minería, reciclaje y energía. Si el banco de agua llega a cero
+              o la energía colapsa, la misión falla. Si sobrevivís, tu puntaje refleja qué tan
+              eficiente fue tu diseño. <span className="text-amber-300">Compite con tu equipo, tu clase o el mundo.</span>
+            </p>
+            <button onClick={startComp} className="bg-amber-500 hover:bg-amber-400 text-black rounded-xl px-8 py-3.5 font-bold transition">
+              ⚔️ Aceptar el desafío
+            </button>
+          </div>
+          <div className="space-y-4">
+            {[
+              ['💧', 'Banco de agua > 0', 'Si se agota, la tripulación no sobrevive'],
+              ['⚡', 'Energía balanceada', 'Los paneles solares deben cubrir minería y electrólisis'],
+              ['📈', 'Puntaje por eficiencia', 'Cobertura de demanda + agua acumulada + margen energético'],
+            ].map(([i, t, d]) => (
+              <div key={t} className="flex gap-4 items-start bg-black/30 rounded-xl p-4 border border-slate-800">
+                <span className="text-2xl">{i}</span>
+                <div>
+                  <div className="font-semibold text-sm">{t}</div>
+                  <div className="text-xs text-slate-500 mt-0.5">{d}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* EQUIPO */}
+      <Section id="equipo" className="py-24 border-t border-slate-800/60">
+        <p className="text-sky-400 text-xs tracking-[0.3em] uppercase mb-3">Equipo</p>
+        <h2 className="text-3xl md:text-4xl font-bold mb-12">Hecho por estudiantes, para llegar a la Luna</h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-16">
+          {TEAM.map((m) => (
+            <div key={m.n} className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 text-center">
+              <div className="w-14 h-14 mx-auto rounded-full bg-gradient-to-br from-sky-700 to-slate-700 mb-4 ring-2 ring-sky-500/30" />
+              <div className="font-semibold">{m.n}</div>
+              <div className="text-xs text-slate-500 mt-1">{m.r}</div>
             </div>
           ))}
         </div>
-      </section>
+        <div className="text-center pb-24">
+          <h3 className="text-2xl font-bold mb-3">El futuro se construye con agua lunar.</h3>
+          <p className="text-slate-500 text-sm mb-8">NASA Space Apps Challenge · Noviembre 2026</p>
+          <button onClick={startFree} className="bg-sky-600 hover:bg-sky-500 text-white rounded-xl px-10 py-4 font-semibold transition shadow-[0_0_40px_rgba(56,150,220,0.4)]">
+            Empezar ahora
+          </button>
+        </div>
+      </Section>
 
-      {/* CTA final */}
-      <section className="max-w-3xl mx-auto px-6 pb-32 text-center">
-        <h2 className="text-2xl md:text-3xl font-bold mb-4">
-          Ajustá los parámetros.<br />Hacé funcionar la base.
-        </h2>
-        <p className="text-slate-400 text-sm mb-8">
-          Tripulación, concentración de hielo, potencia solar: cada decisión afecta si la base sobrevive.
-        </p>
-        <button
-          onClick={onStart}
-          className="bg-sky-600 hover:bg-sky-500 text-white rounded-xl px-10 py-4 font-semibold transition shadow-[0_0_30px_rgba(56,150,220,0.4)]"
-        >
-          Empezar ahora
-        </button>
-      </section>
-
-      <footer className="border-t border-slate-800/60 py-8 text-center text-xs text-slate-600">
-        MoonWater · NASA Space Apps Challenge 2026 · Datos: NASA LCROSS · LRO · ISS ECLSS
+      <footer className="border-t border-slate-800/60 py-10 text-center text-xs text-slate-600">
+        MOONWATER · NASA Space Apps Challenge 2026<br />
+        Datos: NASA LCROSS · Lunar Reconnaissance Orbiter · ISS ECLSS · Artemis Program
       </footer>
+
+      <style>{`
+        @keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-18px) } }
+      `}</style>
+    </div>
+  )
+}
+
+function Stars() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(70)].map((_, i) => {
+        const x = (i * 137.5) % 100
+        const y = (i * 61.8) % 100
+        const s = i % 3 === 0 ? 2 : 1
+        return (
+          <div
+            key={i}
+            className="absolute rounded-full bg-white"
+            style={{ left: `${x}%`, top: `${y}%`, width: s, height: s, opacity: 0.15 + ((i * 37) % 60) / 100 }}
+          />
+        )
+      })}
     </div>
   )
 }
