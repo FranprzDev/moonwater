@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { Stars } from '@react-three/drei'
+import * as THREE from 'three'
 import { useSim } from './sim/store'
 import Scene from './Scene'
 
@@ -78,20 +81,84 @@ function Section({ id, className = '', children }) {
   )
 }
 
-// Hito de la misión: narrativa de viaje entre secciones
-function MissionLog({ time, text }) {
+// Fondo: viaje espacial ligado al scroll (Tierra -> Luna)
+const TRAVEL_DEPTH = 260
+
+function Traveler({ progressRef }) {
+  const moon = useRef()
+  const earth = useRef()
+  useFrame((state) => {
+    const p = progressRef.current
+    state.camera.position.z = 10 - p * TRAVEL_DEPTH
+    state.camera.position.y = Math.sin(p * Math.PI) * 4
+    state.camera.rotation.z = p * 0.12
+    if (earth.current) earth.current.visible = p < 0.35
+    if (moon.current) {
+      // la Luna crece a medida que te acercás
+      const near = Math.max(0, (p - 0.45) / 0.55)
+      moon.current.scale.setScalar(0.4 + near * 2.2)
+    }
+  })
   return (
-    <Reveal>
-      <div className="max-w-6xl mx-auto px-6 flex items-center gap-4 py-2">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-sky-800/60" />
-        <div className="flex items-center gap-3">
-          <span className="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_12px_rgba(80,170,255,0.9)]" />
-          <span className="font-mono text-[11px] text-sky-300/90 tracking-[0.25em] uppercase">{time}</span>
-          <span className="font-mono text-[11px] text-slate-500 tracking-wider hidden sm:inline">· {text}</span>
-        </div>
-        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-sky-800/60" />
-      </div>
-    </Reveal>
+    <group>
+      <Stars radius={140} depth={TRAVEL_DEPTH + 80} count={7000} factor={5} saturation={0.4} fade speed={0.4} />
+      {/* Tierra detrás (inicio del viaje) */}
+      <group ref={earth} position={[14, 8, -18]}>
+        <mesh>
+          <sphereGeometry args={[5, 48, 48]} />
+          <meshBasicMaterial color="#2a6fd4" />
+        </mesh>
+        <mesh scale={1.05}>
+          <sphereGeometry args={[5, 32, 32]} />
+          <meshBasicMaterial color="#6fb7ff" transparent opacity={0.15} side={2} />
+        </mesh>
+      </group>
+      {/* Luna al final del viaje */}
+      <group ref={moon} position={[-6, -2, 8 - TRAVEL_DEPTH]}>
+        <mesh>
+          <sphereGeometry args={[14, 64, 64]} />
+          <meshBasicMaterial color="#c9ccd4" />
+        </mesh>
+        {/* cráteres */}
+        {[...Array(14)].map((_, i) => {
+          const a = i * 2.4, r = 4 + (i % 5) * 2
+          const v = new THREE.Vector3(Math.cos(a) * r, Math.sin(a * 1.3) * r * 0.7, Math.sqrt(Math.max(0, 196 - r * r)) * (i % 2 ? 1 : -1) * 0.5)
+          return <mesh key={i} position={v.clone().normalize().multiplyScalar(13.6)}>
+            <circleGeometry args={[0.7 + (i % 3) * 0.5, 24]} />
+            <meshBasicMaterial color="#9ba0ab" />
+          </mesh>
+        })}
+        <pointLight position={[10, 6, 20]} intensity={8000} distance={120} color="#fff3e0" />
+      </group>
+      {/* nebulosas suaves */}
+      {[[30, 10, -60, '#1a3a6e'], [-35, -12, -140, '#2a1a5e'], [20, 14, -210, '#0e2a4e']].map(([x, y, z, c], i) => (
+        <mesh key={i} position={[x, y, z]}>
+          <sphereGeometry args={[22 + i * 8, 16, 16]} />
+          <meshBasicMaterial color={c} transparent opacity={0.16} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+function SpaceBackground() {
+  const progressRef = useRef(0)
+  useEffect(() => {
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      progressRef.current = Math.min(1, Math.max(0, window.scrollY / Math.max(max, 1)))
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+  return (
+    <div className="fixed inset-0 z-0 pointer-events-none">
+      <Canvas camera={{ position: [0, 0, 10], fov: 60 }} gl={{ alpha: true }}>
+        <ambientLight intensity={0.6} />
+        <Traveler progressRef={progressRef} />
+      </Canvas>
+    </div>
   )
 }
 
@@ -117,6 +184,7 @@ export default function Landing({ onStart }) {
           }}
         />
       </div>
+      <SpaceBackground />
       <div className="relative z-10">
       {/* NAV */}
       <nav className="fixed top-0 inset-x-0 z-40 backdrop-blur-md bg-[#05060c]/70 border-b border-slate-800/50">
@@ -127,7 +195,7 @@ export default function Landing({ onStart }) {
 
       {/* HERO */}
       <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden">
-        <Stars />
+        <DotStars />
         <div
           className="absolute inset-0"
           style={{ background: 'radial-gradient(ellipse 70% 55% at 50% 115%, #3b5a8f44, transparent), radial-gradient(circle at 82% 12%, #22305533, transparent 45%)' }}
@@ -144,7 +212,7 @@ export default function Landing({ onStart }) {
           MOONWATER
         </h1>
         <p className="relative text-base md:text-xl text-slate-300 max-w-2xl mb-10 leading-relaxed font-light">
-          El primer simulador 3D interactivo de una base lunar autosustentable:
+          Un simulador 3D interactivo de una base lunar autosustentable:
           extraé hielo del regolito, convertilo en agua potable, oxígeno y combustible,
           y mantené viva a tu tripulación.
         </p>
@@ -160,7 +228,6 @@ export default function Landing({ onStart }) {
       </section>
 
       {/* CIENCIA */}
-      <MissionLog time="T+00:00:00" text="Despegue desde la Tierra" />
       <Section id="ciencia" className="py-24">
         <p className="text-sky-400 text-xs tracking-[0.3em] uppercase mb-3">La ciencia es real</p>
         <h2 className="text-3xl md:text-4xl font-bold mb-6 max-w-3xl">
@@ -185,7 +252,6 @@ export default function Landing({ onStart }) {
       </Section>
 
       {/* CÓMO FUNCIONA */}
-      <MissionLog time="T+3 días" text="384.400 km · Órbita polar" />
       <Section id="como" className="py-24">
         <p className="text-sky-400 text-xs tracking-[0.3em] uppercase mb-3">Cómo funciona</p>
         <h2 className="text-3xl md:text-4xl font-bold mb-14">Del hielo enterrado al vaso de agua</h2>
@@ -207,7 +273,6 @@ export default function Landing({ onStart }) {
       </Section>
 
       {/* MODO COMPETITIVO */}
-      <MissionLog time="T+7 días" text="Descenso al polo sur" />
       <Section className="py-24">
         <Reveal>
         <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-950/40 via-slate-900/60 to-slate-900/20 p-8 md:p-14 grid md:grid-cols-2 gap-10 items-center">
@@ -243,7 +308,6 @@ export default function Landing({ onStart }) {
       </Section>
 
       {/* ATERRIZAJE: SIMULADOR EN VIVO (final del viaje) */}
-      <MissionLog time="T+7 días, 3 horas" text="Contacto con la superficie" />
       <Section id="simulador" className="py-24">
         <Reveal>
           <p className="text-emerald-400 text-xs tracking-[0.3em] uppercase mb-3">Aterrizaje</p>
@@ -271,7 +335,6 @@ export default function Landing({ onStart }) {
           </div>
         </Reveal>
         <div className="text-center pt-20 pb-8">
-          <h3 className="text-2xl font-bold mb-8">El futuro se construye con agua lunar.</h3>
           <button onClick={startFree} className="bg-sky-600 hover:bg-sky-500 text-white rounded-xl px-10 py-4 font-semibold transition shadow-[0_0_40px_rgba(56,150,220,0.4)]">
             Empezar ahora
           </button>
@@ -292,7 +355,7 @@ export default function Landing({ onStart }) {
   )
 }
 
-function Stars() {
+function DotStars() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {[...Array(70)].map((_, i) => {
