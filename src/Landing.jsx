@@ -44,13 +44,6 @@ const FACTS = [
   },
 ]
 
-const TEAM = [
-  { n: 'Agustina Bitran', r: 'Investigación Operativa' },
-  { n: 'Francisco Perez', r: 'Desarrollo & Simulación' },
-  { n: 'Gonzalo Posse', r: 'Análisis de Datos' },
-  { n: 'Lucas Roldán', r: 'Modelado de Sistemas' },
-]
-
 function Section({ id, className = '', children }) {
   return (
     <section id={id} className={`max-w-6xl mx-auto px-6 ${className}`}>
@@ -214,19 +207,8 @@ export default function Landing({ onStart }) {
       {/* EQUIPO */}
       <Section id="equipo" className="py-24 border-t border-slate-800/60">
         <p className="text-sky-400 text-xs tracking-[0.3em] uppercase mb-3">Equipo</p>
-        <h2 className="text-3xl md:text-4xl font-bold mb-12">Hecho por estudiantes, para llegar a la Luna</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-16">
-          {TEAM.map((m) => (
-            <div key={m.n} className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 text-center">
-              <div className="w-14 h-14 mx-auto rounded-full bg-gradient-to-br from-sky-700 to-slate-700 mb-4 ring-2 ring-sky-500/30" />
-              <div className="font-semibold">{m.n}</div>
-              <div className="text-xs text-slate-500 mt-1">{m.r}</div>
-            </div>
-          ))}
-        </div>
         <div className="text-center pb-24">
-          <h3 className="text-2xl font-bold mb-3">El futuro se construye con agua lunar.</h3>
-          <p className="text-slate-500 text-sm mb-8">NASA Space Apps Challenge · Noviembre 2026</p>
+          <h3 className="text-2xl font-bold mb-8">El futuro se construye con agua lunar.</h3>
           <button onClick={startFree} className="bg-sky-600 hover:bg-sky-500 text-white rounded-xl px-10 py-4 font-semibold transition shadow-[0_0_40px_rgba(56,150,220,0.4)]">
             Empezar ahora
           </button>
