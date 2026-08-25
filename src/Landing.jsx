@@ -343,7 +343,6 @@ export default function Landing({ onStart }) {
             </div>
           </div>
         </Reveal>
-        <div className="h-10"></div>
       </Section>
 
       <footer className="border-t border-slate-800/60 py-10 text-center text-xs text-slate-600">
