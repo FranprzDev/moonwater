@@ -84,7 +84,23 @@ export default function Landing({ onStart }) {
   const startComp = () => { setMode('compete'); onStart() }
 
   return (
-    <div className="min-h-screen bg-[#05060c] text-slate-100 font-sans">
+    <div className="min-h-screen bg-[#05060c] text-slate-100 font-sans relative">
+      {/* Aura global de fondo */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div
+          className="absolute inset-0"
+          style={{
+            background: [
+              'radial-gradient(ellipse 55% 40% at 15% 10%, rgba(56,110,200,0.14), transparent 70%)',
+              'radial-gradient(ellipse 50% 45% at 88% 30%, rgba(120,80,200,0.10), transparent 70%)',
+              'radial-gradient(ellipse 65% 50% at 50% 65%, rgba(30,90,180,0.12), transparent 70%)',
+              'radial-gradient(ellipse 60% 45% at 20% 92%, rgba(70,140,220,0.10), transparent 70%)',
+              'radial-gradient(ellipse 55% 40% at 85% 100%, rgba(200,140,60,0.07), transparent 70%)',
+            ].join(', '),
+          }}
+        />
+      </div>
+      <div className="relative z-10">
       {/* NAV */}
       <nav className="fixed top-0 inset-x-0 z-40 backdrop-blur-md bg-[#05060c]/70 border-b border-slate-800/50">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center">
@@ -245,6 +261,8 @@ export default function Landing({ onStart }) {
         MOONWATER · NASA Space Apps Challenge 2026<br />
         Datos: NASA LCROSS · Lunar Reconnaissance Orbiter · ISS ECLSS · Artemis Program
       </footer>
+
+      </div>
 
       <style>{`
         @keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-18px) } }
