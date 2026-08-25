@@ -78,6 +78,23 @@ function Section({ id, className = '', children }) {
   )
 }
 
+// Hito de la misión: narrativa de viaje entre secciones
+function MissionLog({ time, text }) {
+  return (
+    <Reveal>
+      <div className="max-w-6xl mx-auto px-6 flex items-center gap-4 py-2">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-sky-800/60" />
+        <div className="flex items-center gap-3">
+          <span className="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_12px_rgba(80,170,255,0.9)]" />
+          <span className="font-mono text-[11px] text-sky-300/90 tracking-[0.25em] uppercase">{time}</span>
+          <span className="font-mono text-[11px] text-slate-500 tracking-wider hidden sm:inline">· {text}</span>
+        </div>
+        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-sky-800/60" />
+      </div>
+    </Reveal>
+  )
+}
+
 export default function Landing({ onStart }) {
   const setMode = useSim((s) => s.setMode)
   const startFree = () => { setMode('free'); onStart() }
@@ -143,7 +160,8 @@ export default function Landing({ onStart }) {
       </section>
 
       {/* CIENCIA */}
-      <Section id="ciencia" className="py-24 border-t border-slate-800/60">
+      <MissionLog time="T+00:00:00" text="Despegue desde la Tierra" />
+      <Section id="ciencia" className="py-24">
         <p className="text-sky-400 text-xs tracking-[0.3em] uppercase mb-3">La ciencia es real</p>
         <h2 className="text-3xl md:text-4xl font-bold mb-6 max-w-3xl">
           El agua está ahí. La tecnología para alcanzarla ya existe.
@@ -167,6 +185,7 @@ export default function Landing({ onStart }) {
       </Section>
 
       {/* CÓMO FUNCIONA */}
+      <MissionLog time="T+3 días" text="384.400 km · Órbita polar" />
       <Section id="como" className="py-24">
         <p className="text-sky-400 text-xs tracking-[0.3em] uppercase mb-3">Cómo funciona</p>
         <h2 className="text-3xl md:text-4xl font-bold mb-14">Del hielo enterrado al vaso de agua</h2>
@@ -187,31 +206,8 @@ export default function Landing({ onStart }) {
         </div>
       </Section>
 
-      {/* SIMULADOR EN VIVO */}
-      <Section id="simulador" className="py-24">
-        <p className="text-sky-400 text-xs tracking-[0.3em] uppercase mb-3">Probalo ahora</p>
-        <h2 className="text-3xl md:text-4xl font-bold mb-6">La base, funcionando en vivo</h2>
-        <p className="text-slate-400 max-w-2xl mb-8 leading-relaxed">
-          Esto no es un video: es la simulación corriendo en tu navegador en este momento.
-          Pozo de hielo, planta ISRU, hábitat y cada gota viajando entre estaciones.
-        </p>
-        <div className="rounded-3xl overflow-hidden border border-slate-800 shadow-[0_0_80px_rgba(40,90,160,0.25)] relative">
-          <div
-            className="h-[420px] md:h-[560px]"
-            style={{ background: 'radial-gradient(ellipse 90% 70% at 50% 110%, #2a4a7f55, #0b1020 60%, #05060c)' }}
-          ><Scene /></div>
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-3">
-            <button onClick={startFree} className="bg-sky-600/95 hover:bg-sky-500 rounded-xl px-6 py-3 text-sm font-semibold backdrop-blur transition">
-              Tomar el control →
-            </button>
-            <button onClick={startComp} className="bg-black/60 hover:bg-amber-600/90 border border-amber-500/50 text-amber-300 rounded-xl px-6 py-3 text-sm font-semibold backdrop-blur transition">
-              ⚔️ Modo competitivo
-            </button>
-          </div>
-        </div>
-      </Section>
-
       {/* MODO COMPETITIVO */}
+      <MissionLog time="T+7 días" text="Descenso al polo sur" />
       <Section className="py-24">
         <Reveal>
         <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-950/40 via-slate-900/60 to-slate-900/20 p-8 md:p-14 grid md:grid-cols-2 gap-10 items-center">
@@ -246,10 +242,35 @@ export default function Landing({ onStart }) {
         </Reveal>
       </Section>
 
-      {/* EQUIPO */}
-      <Section id="equipo" className="py-24 border-t border-slate-800/60">
-        <p className="text-sky-400 text-xs tracking-[0.3em] uppercase mb-3">Equipo</p>
-        <div className="text-center pb-24">
+      {/* ATERRIZAJE: SIMULADOR EN VIVO (final del viaje) */}
+      <MissionLog time="T+7 días, 3 horas" text="Contacto con la superficie" />
+      <Section id="simulador" className="py-24">
+        <Reveal>
+          <p className="text-emerald-400 text-xs tracking-[0.3em] uppercase mb-3">Aterrizaje</p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">Bienvenido a la base</h2>
+          <p className="text-slate-400 max-w-2xl mb-8 leading-relaxed">
+            Llegaste. Esto no es un video: es la simulación corriendo en tu navegador
+            en este momento. Pozo de hielo, planta ISRU, hábitat y cada gota viajando
+            entre estaciones. <span className="text-slate-200">Ahora es tuya.</span>
+          </p>
+        </Reveal>
+        <Reveal delay={200}>
+          <div className="rounded-3xl overflow-hidden border border-slate-700 shadow-[0_0_100px_rgba(60,120,200,0.35)] relative">
+            <div
+              className="h-[440px] md:h-[600px]"
+              style={{ background: 'radial-gradient(ellipse 90% 70% at 50% 110%, #2a4a7f55, #0b1020 60%, #05060c)' }}
+            ><Scene /></div>
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-3">
+              <button onClick={startFree} className="bg-sky-600/95 hover:bg-sky-500 rounded-xl px-6 py-3 text-sm font-semibold backdrop-blur transition">
+                Tomar el control →
+              </button>
+              <button onClick={startComp} className="bg-black/60 hover:bg-amber-600/90 border border-amber-500/50 text-amber-300 rounded-xl px-6 py-3 text-sm font-semibold backdrop-blur transition">
+                ⚔️ Modo competitivo
+              </button>
+            </div>
+          </div>
+        </Reveal>
+        <div className="text-center pt-20 pb-8">
           <h3 className="text-2xl font-bold mb-8">El futuro se construye con agua lunar.</h3>
           <button onClick={startFree} className="bg-sky-600 hover:bg-sky-500 text-white rounded-xl px-10 py-4 font-semibold transition shadow-[0_0_40px_rgba(56,150,220,0.4)]">
             Empezar ahora
