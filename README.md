@@ -1,22 +1,32 @@
-# MoonWater 🌙💧
+# MOONWATER 🌙💧
 
-Simulador 3D interactivo: extracción de agua en la Luna.
+**Agua en la Luna. Nosotros vamos a buscarla.**
 
-Proyecto para el [NASA Space Apps Challenge 2026](https://www.spaceappschallenge.org/).
+Simulador 3D interactivo de una base lunar autosustentable, centrada en el recurso más valioso de la exploración espacial: el agua.
 
 ## ¿Qué es?
 
-Una base lunar completa, simulada en tiempo real:
+Una experiencia en dos capas:
 
-- **Pozo de hielo** en una Región de Sombra Permanente (PSR)
-- **Planta ISRU**: reactor térmico tipo LADI, electrólisis PEM, tanques criogénicos H₂/O₂
-- **Hábitat modular** con invernadero y campo solar
-- **Tuberías visibles** con flujo de agua animado
-- Balance de masa y energía con datos reales de NASA (LCROSS, Mini-SAR, ECLSS de la ISS)
+### 🌌 Landing narrativa
+Un viaje espacial renderizado en tiempo real (WebGL) y ligado al scroll: partís desde la Tierra, cruzás el espacio profundo con Marte y un gigante gaseoso en el camino, y aterrizás en la Luna — donde te espera la base.
 
-## Modo Competitivo ⚔️
+### 🛰️ Simulador paramétrico
+La base lunar completa funcionando en vivo:
 
-Sobreviví 30 días lunares manteniendo el banco de agua positivo y el margen energético sin colapsar. El puntaje combina cobertura de demanda, agua acumulada y eficiencia energética.
+- **Pozo de hielo** en una Región de Sombra Permanente (PSR), con torre de perforación y sonda térmica
+- **Planta ISRU**: reactor LADI, electrólisis PEM, tanques criogénicos de H₂/O₂ y radiadores
+- **Hábitat presurizado** con túnel de acople, invernadero y airlock
+- **Circuito de tuberías** con flujo de agua animado entre estaciones
+- **Rover minero** con cinemática realista (ruedas, polvo, trayectorias suaves)
+- Balance de masa y energía en tiempo real con datos NASA
+
+### ⚔️ Modo competitivo
+Sobreviví **30 días lunares** manteniendo el banco de agua por encima de cero y el margen energético sin colapsar. El puntaje premia la cobertura de demanda, el agua acumulada y la eficiencia. Récord local incluido: competí contra tu equipo, tu clase o el mundo.
+
+## La ciencia
+
+El agua lunar no es especulación: fue confirmada por LCROSS (2009), mapeada por Chandrayaan-1/Mini-SAR y LRO, y validada por SOFIA (2020). Está en los cráteres polares que nunca reciben luz solar, y es simultáneamente bebida, oxígeno respirable y combustible. Extraerla en el lugar (*ISRU*) es la clave para quedarse.
 
 ## Stack
 
@@ -32,11 +42,12 @@ npm install
 npm run dev
 ```
 
-## ¿Por qué?
+Build de producción:
 
-Porque el agua es el recurso más valioso de la exploración espacial, y porque ya
-está ahí: en los cráteres polares lunares, esperando ser extraída.
+```bash
+npm run build
+```
 
 ---
 
-*NASA Space Apps Challenge · Noviembre 14–15, 2026*
+*Datos: NASA LCROSS · Lunar Reconnaissance Orbiter · Chandrayaan-1 · ISS ECLSS*
